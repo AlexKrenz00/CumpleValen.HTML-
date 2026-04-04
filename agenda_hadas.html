@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agenda de las Hadas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f5eee6; /* Beige claro */
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+    color: #5d4037; /* Marrón suave */
+    overflow-x: hidden;
+  }
+
+  /* DECORACIÓN DISPERSA */
+  .bg-decor {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 0;
+  }
+  .floating-img {
+    position: absolute; opacity: 0.6; pointer-events: none;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+  }
+
+  .app-wrapper {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto;
+    padding: 30px 16px;
+  }
+
+  .app-header {
+    text-align: center; margin-bottom: 30px;
+  }
+  .app-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem; font-weight: 600;
+    color: #8d6e63; letter-spacing: 1px;
+  }
+  .app-header p {
+    font-size: 1rem; color: #a1887f; font-style: italic;
+  }
+
+  .tabs {
+    display: flex; gap: 10px; justify-content: center;
+    margin-bottom: 25px; flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: #ffffff; border: 1px solid #d7ccc8;
+    color: #8d6e63; border-radius: 12px;
+    padding: 10px 22px; cursor: pointer; transition: all 0.3s;
+    font-weight: 600; font-family: inherit;
+  }
+  .tab-btn:hover { background: #fbe9e7; }
+  .tab-btn.active { background: #d7ccc8; color: #5d4037; border-color: #a1887f; }
+
+  .tab-panel { display: none; animation: fadeIn 0.5s; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* AGENDA */
+  .card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    border: 1px solid #efebe9;
+    border-radius: 15px; padding: 25px;
+    box-shadow: 0 10px 30px rgba(93,64,55,0.05);
+  }
+  .agenda-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media (max-width: 600px) { .agenda-grid { grid-template-columns: 1fr; } }
+
+  label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #8d6e63; }
+  input, textarea {
+    width: 100%; padding: 12px; border: 1px solid #d7ccc8;
+    border-radius: 8px; background: #fffaf8;
+    font-family: inherit; color: #5d4037; outline: none; margin-bottom: 15px;
+  }
+  input:focus, textarea:focus { border-color: #a1887f; background: #fff; }
+
+  .btn-save {
+    background: #d4a59a; color: white; border: none;
+    padding: 12px 20px; border-radius: 8px; cursor: pointer;
+    font-weight: 600; width: 100%; transition: background 0.3s;
+  }
+  .btn-save:hover { background: #bc8a7e; }
+
+  .event-list { margin-top: 30px; }
+  .event-item {
+    background: white; padding: 15px; border-radius: 10px;
+    margin-bottom: 12px; border-left: 5px solid #d4a59a;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .event-info h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; }
+  .event-info p { font-size: 0.85rem; color: #a1887f; }
+
+  /* CANCIONES */
+  .song-card {
+    background: #fff; margin-bottom: 15px; padding: 15px;
+    border-radius: 10px; border: 1px solid #eee; cursor: pointer;
+  }
+  .song-lyrics { display: none; padding-top: 10px; font-style: italic; color: #6d4c41; line-height: 1.6; }
+  .song-lyrics.open { display: block; }
+
+  /* ORÁCULO (NUEVA SECCIÓN) */
+  .oracle-box {
+    text-align: center; padding: 40px;
+    background: linear-gradient(to bottom, #ffffff, #fdf5f2);
+    border-radius: 20px; border: 2px dashed #d7ccc8;
+  }
+  .oracle-crystal { font-size: 4rem; margin-bottom: 20px; cursor: pointer; display: inline-block; transition: transform 0.3s; }
+  .oracle-crystal:hover { transform: scale(1.1) rotate(10deg); }
+  #oracle-msg { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: #8d6e63; min-height: 60px; }
+
+</style>
+</head>
+<body>
+
+<div class="bg-decor">
+  <span class="floating-img" style="top: 10%; left: 5%; font-size: 40px;">🌸</span>
+  <span class="floating-img" style="top: 20%; right: 10%; font-size: 50px;">🧚‍♀️</span>
+  <span class="floating-img" style="bottom: 15%; left: 8%; font-size: 45px;">🌿</span>
+  <span class="floating-img" style="bottom: 10%; right: 5%; font-size: 35px;">🌺</span>
+  <span class="floating-img" style="top: 50%; left: 2%; font-size: 30px;">✨</span>
+  <span class="floating-img" style="top: 15%; left: 40%; font-size: 25px;">🍄</span>
+  <span class="floating-img" style="bottom: 40%; right: 3%; font-size: 40px;">🦋</span>
+</div>
+
+<div class="app-wrapper">
+  <header class="app-header">
+    <div style="font-size: 2.5rem;">✨📖✨</div>
+    <h1>Agenda de las Hadas</h1>
+    <p>Organiza tus días con un toque de magia</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="showTab('agenda')">📅 Mi Agenda</button>
+    <button class="tab-btn" onclick="showTab('songs')">🎵 Melodías</button>
+    <button class="tab-btn" onclick="showTab('oracle')">✨ Oráculo Diario</button>
+  </nav>
+
+  <div id="tab-agenda" class="tab-panel active">
+    <div class="card">
+      <div class="agenda-grid">
+        <div>
+          <label>¿Qué tienes planeado?</label>
+          <input type="text" id="eventTitle" placeholder="Ej: Té en el bosque...">
+          <label>Fecha y Hora</label>
+          <input type="datetime-local" id="eventDate">
+        </div>
+        <div>
+          <label>Notas adicionales</label>
+          <textarea id="eventNotes" rows="4" placeholder="Escribe detalles mágicos aquí..."></textarea>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveEvent()">✨ Agendar Momento</button>
+    </div>
+    <div class="event-list" id="eventList"></div>
+  </div>
+
+  <div id="tab-songs" class="tab-panel">
+    <div id="songsContainer"></div>
+  </div>
+
+  <div id="tab-oracle" class="tab-panel">
+    <div class="oracle-box">
+      <h3>El Consejo de las Hadas</h3>
+      <p style="margin-bottom: 20px; color: #a1887f;">Toca el amuleto para recibir un mensaje</p>
+      <div class="oracle-crystal" onclick="getOracle()">🔮</div>
+      <div id="oracle-msg">Haz clic en la bola de cristal...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Lógica de Pestañas ---
+  function showTab(tabName) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabName).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // --- Lógica de Agenda ---
+  let events = JSON.parse(localStorage.getItem('fairy_events') || '[]');
+
+  function saveEvent() {
+    const title = document.getElementById('eventTitle').value;
+    const date = document.getElementById('eventDate').value;
+    const notes = document.getElementById('eventNotes').value;
+
+    if (!title || !date) return alert("Por favor, ponle un título y fecha a tu evento.");
+
+    events.push({ title, date, notes, id: Date.now() });
+    localStorage.setItem('fairy_events', JSON.stringify(events));
+    
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventDate').value = '';
+    document.getElementById('eventNotes').value = '';
+    
+    renderEvents();
+  }
+
+  function deleteEvent(id) {
+    events = events.filter(e => e.id !== id);
+    localStorage.setItem('fairy_events', JSON.stringify(events));
+    renderEvents();
+  }
+
+  function renderEvents() {
+    const list = document.getElementById('eventList');
+    list.innerHTML = '<h3>Próximos Momentos 🌿</h3><br>';
+    events.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach(e => {
+      const dateFmt = new Date(e.date).toLocaleString('es-AR', { dateStyle: 'medium', timeStyle: 'short' });
+      list.innerHTML += `
+        <div class="event-item">
+          <div class="event-info">
+            <h4>${e.title}</h4>
+            <p>📅 ${dateFmt}</p>
+            <small>${e.notes}</small>
+          </div>
+          <button style="background:none; border:none; color:#d4a59a; cursor:pointer; font-size:1.2rem;" onclick="deleteEvent(${e.id})">✕</button>
+        </div>
+      `;
+    });
+  }
+
+  // --- Lógica de Canciones ---
+  const songs = [
+    { t: "Susurro del Trébol", l: "Bajo la hoja del trébol verde,\nun secreto el hada pierde.\nSi lo encuentras con amor,\ntendrás un día de gran esplendor." },
+    { t: "Vuelo de Mariposa", l: "Alas de seda, color de miel,\ndanzan ligeras sobre tu piel.\nSigue el rastro de su polvillo,\ny encontrarás el brillo sencillo." }
+  ];
+
+  function renderSongs() {
+    const container = document.getElementById('songsContainer');
+    songs.forEach((s, i) => {
+      container.innerHTML += `
+        <div class="song-card" onclick="document.getElementById('l-${i}').classList.toggle('open')">
+          <strong>🎵 ${s.t}</strong>
+          <div class="song-lyrics" id="l-${i}">${s.l.replace(/\n/g, '<br>')}</div>
+        </div>
+      `;
+    });
+  }
+
+  // --- Lógica del Oráculo ---
+  const messages = [
+    "Hoy es un buen día para caminar descalza sobre la hierba.",
+    "Un mensaje llegará a ti en las alas de un pájaro.",
+    "Confía en tu intuición, el polvo de hadas te guía.",
+    "Siembra una semilla de bondad y verás flores mañana.",
+    "Alguien del bosque piensa en ti con cariño.",
+    "Es momento de brillar con tu propia luz natural."
+  ];
+
+  function getOracle() {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    const display = document.getElementById('oracle-msg');
+    display.style.opacity = 0;
+    setTimeout(() => {
+      display.innerText = "“" + msg + "”";
+      display.style.opacity = 1;
+    }, 300);
+  }
+
+  // Inicio
+  renderEvents();
+  renderSongs();
+</script>
+
+</body>
+</html>
